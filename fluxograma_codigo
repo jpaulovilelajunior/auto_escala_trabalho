@@ -1,0 +1,41 @@
+Inicio
+|
+|-- Inicializar variáveis
+|   |-- minha_matriz
+|   |-- escalas_de_trabalho
+|   |-- interacoes
+|   |-- cont_interacoes = 0
+|   |-- primeiro_valor_maior_zero = Vazio
+|
+|-- Loop Principal
+|   |
+|   |-- Incrementar cont_interacoes
+|   |
+|   |-- Encontrar primeiro valor > 0 na matriz (primeiro_valor_maior_zero)
+|   |
+|   |-- Verificar se primeiro_valor_maior_zero é Vazio
+|   |   |-- Sim -> Interromper Loop Principal
+|   |   |-- Não -> Continuar Loop Interno
+|
+|-- Loop Interno
+|   |
+|   |-- Encontrar menor valor na coluna e seguintes
+|   |   |-- menor_valor_coluna, coordenadas_menor_valor
+|   |
+|   |-- Lógica adicional necessária aqui
+|
+|-- Funções Auxiliares
+|   |-- calcular_somatorio_linhas
+|   |-- encontrar_menor_somatorio
+|   |-- encontrar_primeiro_valor_maior_que_zero_na_linha
+|   |-- subtrair_valor_da_escala
+|   |-- escolher_escala_final
+|   |-- escolher_proxima_escala
+|   |-- encontrar_proxima_linha_para_processar
+|   |-- gerar_matriz_resumo
+|   |-- steps_1_e_2
+|   |-- formatar_escala
+|   |-- gerar_tabela_personalizada
+|   |-- steps_1_a_4
+|
+Fim
