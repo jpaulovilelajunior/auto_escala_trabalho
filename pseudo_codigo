@@ -1,0 +1,310 @@
+Principal:	
+1	# Inicializando as variáveis
+2	Matriz --> minha_matriz
+3	Lista --> escalas_de_trabalho
+4	Inteiro --> interacoes
+5	Inteiro --> cont_interacoes = 0
+6	Inteiro --> primeiro_valor_maior_zero = Vazio
+
+7	# Loop principal do algoritmo
+8	Enquanto Verdadeiro:
+9		# Incrementar cont_interacoes
+10		incrementar cont_interacoes
+11		# Função que irá trazer o primeiro valor > 0 da matriz
+12		primeiro_valor_maior_zero = encontrar_primeiro_valor_maior_que_zero(minha_matriz)
+13		# Se primeiro_valor_maior_zero for Vazio:
+14		Se primeiro_valor_maior_zero for Vazio:
+15			Interromper Loop
+	
+16		# Loop interno
+17		Enquanto Verdadeiro:
+18			menor_valor_coluna, coordenadas_menor_valor = encontrar_menor_valor_na_coluna_e_seguintes(minha_matriz, coordenadas_primeiro, coordenadas_primeiro[1])
+19			# Lógica adicional necessária aqui
+
+20	# Funções auxiliares
+21	Função calcular_somatorio_linhas(matriz_formatada):
+22		Retornar [soma(map(int, linha)) para linha em matriz_formatada]
+23	
+24	Função encontrar_menor_somatorio(somatorios_linhas):
+25		somatorios_positivos_nao_zero = [x para x em somatorios_linhas se x > 0]
+26		Se somatorios_positivos_nao_zero:
+27			Retornar min(somatorios_positivos_nao_zero)
+28		Senão:
+29			Retornar Nenhum
+30	
+31	Função encontrar_primeiro_valor_maior_que_zero_na_linha(linha, direcao_atual):
+32		Se direcao_atual == "normal":
+33			Para indice, valor em enumerar(linha):
+34				Se valor > 0:
+35					Retornar valor, indice
+36		Senão Se direcao_atual == "inversa":
+37			Para indice, valor em reverter(list(enumerar(linha))):
+38				Se valor > 0:
+39					Retornar valor, indice
+40		Retornar Nenhum, Nenhum
+41	
+42	Função subtrair_valor_da_escala(matriz_formatada, linha, coluna, valor_subtrair, escala_final, direcao_atual):
+43		matriz_copia = [linha.copiar() para linha em matriz_formatada]
+44		linhas_subtraidas = []
+45		num_linhas = comprimento(matriz_formatada)
+46		num_colunas = comprimento(matriz_formatada[0])
+47		coluna_final_afetada = coluna
+48		
+49		Se tipo(escala_final) é tupla:
+50			quantidade_dias_trabalho = escala_final[1]
+51			quantidade_horas_trabalho = escala_final[0]
+52			linhas_a_subtrair = lista(intervalo(linha, max(linha - quantidade_dias_trabalho, -1), -1))
+53			
+54			Se comprimento(linhas_a_subtrair) < quantidade_dias_trabalho:
+55				linhas_faltantes = quantidade_dias_trabalho - comprimento(linhas_a_subtrair)
+56				linhas_a_subtrair += lista(intervalo(linha + 1, min(linha + linhas_faltantes + 1, num_linhas)))
+57			Para i em linhas_a_subtrair:
+58				linhas_subtraidas.adicionar(i)
+59				Se direcao_atual == "normal":
+60					colunas_a_subtrair = intervalo(coluna, min(coluna + quantidade_horas_trabalho, num_colunas))
+61					coluna_final_afetada = min(coluna + quantidade_horas_trabalho - 1, num_colunas - 1)
+62				Senão:
+63					colunas_a_subtrair = intervalo(coluna, max(coluna - quantidade_horas_trabalho, -1), -1)
+64					coluna_final_afetada = max(coluna - quantidade_horas_trabalho + 1, 0)
+65				Para j em colunas_a_subtrair:
+66					matriz_copia[i][j] -= valor_subtrair
+67		
+68		Retornar matriz_copia, linhas_subtraidas, coluna_final_afetada
+69	
+70	Função escolher_escala_final(escalas_formatadas):
+71		todas_escalas_fixas = []
+72		Para detalhes_lista em escalas_formatadas.valores():
+73			Para horas, dias em detalhes_lista:
+74				todas_escalas_fixas.adicionar((horas, dias))
+75		Se todas_escalas_fixas:
+76			todas_escalas_fixas.ordenar(chave=lambda x: x[1], inverso=Verdadeiro)
+77			escala_final = todas_escalas_fixas[0]
+78			Retornar escala_final
+79	
+80	Função escolher_proxima_escala(escalas_formatadas, escala_atual):
+81		escalas_disponiveis = []
+82		Para tipo, detalhes_lista em escalas_formatadas.itens():
+83			Para detalhes em detalhes_lista:
+84				horas, dias = detalhes
+85				Se (horas, dias) != escala_atual:
+86					escalas_disponiveis.adicionar((horas, dias))
+87		escalas_disponiveis.ordenar(chave=lambda x: x[1], inverso=Verdadeiro)
+88		Se escalas_disponiveis:
+89			Retornar escalas_disponiveis[0]
+90		Retornar Nenhum
+91	
+92	Função encontrar_proxima_linha_para_processar(matriz_formatada, linha_atual):
+93		linha_anterior = linha_atual - 1
+94		Se linha_anterior >= 0:
+95			Retornar linha_anterior
+96		Retornar Nenhum
+97	
+98	Função gerar_matriz_resumo(interacoes):
+99		matrizes_resumo = []
+100		Para interacao em interacoes:
+101			matrizes_resumo.adicionar({
+102				'matriz': interacao['matriz'],
+103				'escala': interacao['escala'],
+104				'quantidade_funcionarios': interacao['quantidade_funcionarios'],
+105				'horario_entrada': interacao['horario_entrada'],
+106				'linhas_subtraidas': interacao['linhas_subtraidas']
+107			})
+108		Retornar matrizes_resumo
+109	
+110	Função steps_1_e_2(matriz_formatada):
+111		somatorios_linhas = calcular_somatorio_linhas(matriz_formatada)
+112		menor_somatorio = encontrar_menor_somatorio(somatorios_linhas)
+113		Retornar somatorios_linhas, menor_somatorio
+
+114	Função formatar_escala(escala):
+115		horas_trabalhadas, dias_trabalho = escala
+116		Se dias_trabalho == 1 e horas_trabalhadas == 8:
+117			Retornar "Diarista - {horas_trabalhadas}h"
+118		Senão Se dias_trabalho == 2:
+119			Retornar "Part-time {dias_trabalho} dias - {horas_trabalhadas}h"
+120		Senão Se dias_trabalho == 3:
+121			Se horas_trabalhadas == 8:
+122				Retornar "Part-time {dias_trabalho} dias - {horas_trabalhadas}h"
+123			Senão:
+124				Retornar "Part-time {dias_trabalho} dias - {horas_trabalhadas}h"
+125		Senão Se dias_trabalho == 4:
+126			Se horas_trabalhadas == 6:
+127				Retornar "Part-time {dias_trabalho} dias - {horas_trabalhadas}h"
+128			Senão:
+129				Retornar "Part-time {dias_trabalho} dias - {horas_trabalhadas}h"
+130		Senão Se dias_trabalho == 5:
+131			Se horas_trabalhadas == 10:
+132				Retornar "{dias_trabalho} x 2 - {horas_trabalhadas}h"
+133			Senão Se horas_trabalhadas == 6:
+134				Retornar "{dias_trabalho} x 2 - {horas_trabalhadas}h"
+135			Senão:
+136				Retornar "{dias_trabalho} x 2 - {horas_trabalhadas}h"
+137		Senão Se dias_trabalho == 6:
+138			Se horas_trabalhadas == 8:
+139				Retornar "{dias_trabalho} x 1 - {horas_trabalhadas}h"
+140			Senão Se horas_trabalhadas == 6:
+141				Retornar "{dias_trabalho} x 1 - {horas_trabalhadas}h"
+142			Senão:
+143				Retornar "{dias_trabalho} x 1 - {horas_trabalhadas}h"
+144		Senão Se dias_trabalho == 7:
+145			Retornar "{horas_trabalhadas} x 1 - {horas_trabalhadas}h"
+
+146	Lista --> rotulo_matriz = ['H10', 'H11', 'H12', 'H13', 'H14', 'H15', 'H16', 'H17', 'H18', 'H19', 'H20', 'H21', 'H22', 'H23', 'H00', 'H01', 'H02', 'H03', 'H04', 'H05', 'H06', 'H07', 'H08', 'H09']
+147	Lista --> dias_da_semana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
+
+148	Função gerar_tabela_personalizada(matrizes_resumo, rotulo_matriz, dias_da_semana):
+149		Função transformar_matriz(matriz, rotulo_matriz, dias_semana):
+150			matriz_transformada = []
+151			Para i, linha em enumerar(matriz):
+152				Se i < comprimento(dias_semana):
+153					dia_semana = dias_semana[i]
+154					linha_transformada = {"semana": dia_semana}
+155					Para j, valor em enumerar(linha):
+156						Se j < comprimento(rotulo_matriz):
+157							linha_transformada[rotulo_matriz[j]] = valor
+158					matriz_transformada.adicionar(linha_transformada)
+159			Retornar matriz_transformada
+160		resultados_personalizados = []
+161		Para interacao em matrizes_resumo:
+162			indices_subtracao = interacao['linhas_subtraidas']
+163			dias_subtraidos = [dias_da_semana[idx] para idx em indices_subtracao]
+164			matriz_transformada = transformar_matriz(interacao['matriz'], rotulo_matriz, dias_da_semana)
+165			resultado_personalizado = {
+166				'escala': formatar_escala(interacao['escala']),
+167				'quantidade_funcionarios': interacao['quantidade_funcionarios'],
+168				'horario_entrada': rotulo_matriz[interacao['horario_entrada']],
+169				'dias_da_semana': dias_subtraidos,
+170				'matriz': matriz_transformada
+171			}
+172			resultados_personalizados.adicionar(resultado_personalizado)
+173		Retornar resultados_personalizados
+	
+174	Função steps_1_a_4(matriz_formatada, escalas_formatadas):
+175		interacoes = []
+176		total_subtraido = 0
+177		somatorios_linhas, menor_somatorio = steps_1_e_2(matriz_formatada)
+178		linha_atual = somatorios_linhas.index(menor_somatorio)
+179		direcao_atual = "normal"
+180		escala_atual = Nenhum
+181		escalas_utilizadas = conjunto()
+
+182		Imprimir "Somatórios das linhas: {somatorios_linhas}"
+183		Imprimir "Menor somatório: {menor_somatorio}"
+184		Imprimir "Linha atual: {linha_atual}"
+
+185		Tente:
+186			Enquanto linha_atual >= 0 e linha_atual < comprimento(matriz_formatada):
+187				Imprimir 'Processando linha {linha_atual}'
+
+188				linha_menor_somatorio = matriz_formatada[linha_atual]
+189				primeiro_valor, coluna = encontrar_primeiro_valor_maior_que_zero_na_linha(linha_menor_somatorio, direcao_atual)
+190				Imprimir 'Primeiro valor maior que zero: {primeiro_valor}, Coluna: {coluna}'
+
+191				Se primeiro_valor não é Nenhum:
+192					Se escala_atual é Nenhum:
+193						escala_final = escolher_escala_final(escalas_formatadas)
+194						escala_atual = escala_final
+195					Senão:
+196						escala_final = escala_atual
+
+197					Se tipo(escala_final) é tupla:
+198						outras_escalas_mesmo_dias = [escala para escala em escalas_formatadas.get('fixo', []) + escalas_formatadas.get('part_time', []) se escala[1] == escala_final[1] e escala != escala_final]
+199						todas_escalas_mesmo_dias = outras_escalas_mesmo_dias + [escala_final]
+200						todas_escalas_mesmo_dias.ordenar()
+201						escala_mais_proxima = todas_escalas_mesmo_dias[-1]
+
+202					Imprimir 'Escala mais próxima: {escala_mais_proxima}'
+203					matriz_formatada, linhas_subtraidas, coluna_final_afetada = subtrair_valor_da_escala(matriz_formatada, linha_atual, coluna, primeiro_valor, escala_mais_proxima, direcao_atual)
+
+204					# Imprimir a matriz atualizada
+205					Imprimir "Matriz após subtração:"
+206					Para linha em matriz_formatada:
+207						Imprimir linha
+208					Imprimir
+
+209					horario_entrada = coluna se direcao_atual == "normal" senão coluna_final_afetada
+210					interacoes.adicionar({'escala': escala_mais_proxima, 'quantidade_funcionarios': primeiro_valor, 'horario_entrada': horario_entrada, 'matriz': matriz_formatada.copiar(), 'linhas_subtraidas': linhas_subtraidas})
+211					total_subtraido += primeiro_valor
+212					direcao_atual = "inversa" se direcao_atual == "normal" senão "normal"
+213					escalas_utilizadas.adicionar(escala_mais_proxima)
+
+214					Se qualquer(valor > 0 para valor em linha_menor_somatorio):
+215						Continuar
+
+216				Senão:
+217					Imprimir 'Nenhum valor maior que zero encontrado na linha {linha_atual}, movendo para a linha anterior.'
+218					linha_anterior = linha_atual - 1
+219					Imprimir 'Linha anterior inicial: {linha_anterior}'
+
+220					Enquanto linha_anterior >= 0:
+221						escalas_nao_utilizadas = {
+222							'fixo': [escala para escala em escalas_formatadas.get('fixo', []) se escala não em escalas_utilizadas],
+223							'part_time': [escala para escala em escalas_formatadas.get('part_time', []) se escala não em escalas_utilizadas]
+224						}
+
+225						Imprimir 'Escalas não utilizadas: {escalas_nao_utilizadas}'
+
+226						proxima_escala = escolher_proxima_escala(escalas_nao_utilizadas, escala_atual)
+227						Imprimir 'Próxima escala: {proxima_escala}'
+
+228						Se proxima_escala:
+229							outras_escalas_mesmo_dias = [escala para escala em escalas_nao_utilizadas.get('fixo', []) + escalas_nao_utilizadas.get('part_time', []) se escala[1] == proxima_escala[1] e escala[0] == proxima_escala[0]]
+230							todas_escalas_mesmo_dias = outras_escalas_mesmo_dias + [proxima_escala]
+231							todas_escalas_mesmo_dias.ordenar()
+232							Imprimir 'ordem da menor para maior', todas_escalas_mesmo_dias
+233							escala_mais_proxima = todas_escalas_mesmo_dias[-1]
+234							Imprimir 'Escala escolhida: {escala_mais_proxima}'
+
+235							Enquanto Verdadeiro:
+236								Se linha_anterior >= 0:
+237									primeiro_valor_proxima_linha, coluna_proxima_linha = encontrar_primeiro_valor_maior_que_zero_na_linha(matriz_formatada[linha_anterior], direcao_atual)
+
+238									Imprimir 'Primeiro valor maior que zero na linha anterior: {primeiro_valor_proxima_linha}, Coluna: {coluna_proxima_linha}'
+
+239									Se primeiro_valor_proxima_linha não é Nenhum e 0 <= coluna_proxima_linha < comprimento(matriz_formatada[linha_anterior]):
+240										matriz_formatada, linhas_subtraidas, coluna_final_afetada = subtrair_valor_da_escala(matriz_formatada, linha_anterior, coluna_proxima_linha, primeiro_valor_proxima_linha, escala_mais_proxima, direcao_atual)
+
+241										# Imprimir a matriz atualizada
+242										Imprimir "Matriz após subtração:"
+243										Para linha em matriz_formatada:
+244											Imprimir linha
+245										Imprimir
+
+246										horario_entrada = coluna_proxima_linha se direcao_atual == "normal" senão coluna_final_afetada
+247										interacoes.adicionar({'escala': escala_mais_proxima, 'quantidade_funcionarios': primeiro_valor_proxima_linha, 'horario_entrada': horario_entrada, 'matriz': matriz_formatada.copiar(), 'linhas_subtraidas': linhas_subtraidas})
+248										escala_atual = escala_mais_proxima
+249										total_subtraido += primeiro_valor_proxima_linha
+250										direcao_atual = "inversa" se direcao_atual == "normal" senão "normal"
+251										escalas_utilizadas.adicionar(escala_mais_proxima)
+
+252										Se qualquer(valor > 0 para valor em matriz_formatada[linha_anterior]):
+253											Continuar
+
+254										Quebrar
+255									Senão:
+256										Imprimir 'Erro: Índice de coluna {coluna_proxima_linha} fora do intervalo permitido ou valor na coluna é Nenhum'
+257										linha_anterior -= 1
+258								Senão:
+259									Imprimir 'Linha anterior é menor que 0, quebrando o loop.'
+260									Quebrar
+261						Senão:
+262							Imprimir 'Nenhuma escala não utilizada disponível, quebrando o loop.'
+263							Quebrar
+
+264					Se linha_anterior < 0:
+265						Imprimir 'Nenhuma linha anterior encontrada com valores maiores que zero, quebrando o loop externo.'
+266						Quebrar
+
+267				Se não escalas_nao_utilizadas.get('fixo', []) e não escalas_nao_utilizadas.get('part_time', []):
+268					Imprimir 'Todas as escalas foram utilizadas.'
+269					Quebrar
+
+270				linha_atual = linha_anterior
+
+271		matrizes_resumo = gerar_matriz_resumo(interacoes)
+272		gerar_tabela_personalizada(matrizes_resumo, rotulo_matriz, dias_da_semana)
+273		Retornar interacoes, matrizes_resumo, total_subtraido
+
+274		Exceto Exceção como e:
+275			Imprimir 'Ocorreu um erro durante o processamento: {e}'
+276			Retornar interacoes, gerar_matriz_resumo(interacoes), total_subtraido
